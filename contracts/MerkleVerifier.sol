@@ -11,7 +11,7 @@ contract MerkleVerifier {
         merkleRoot = _merkleRoot;
     }
 
-    function verifyMerkleProof(bytes32[] calldata proof, uint64 elementToProve)
+    function verifyMerkleProof(bytes32[] calldata proof, address elementToProve)
         public
         view
         returns (bool)
