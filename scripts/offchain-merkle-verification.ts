@@ -1,11 +1,13 @@
 import { ethers } from "hardhat";
 import keccak256 from "keccak256";
 import { MerkleTree } from "merkletreejs";
-import { merkleTreeLeaves, validAddress, invalidAddress } from "./utils/mock-data";
-import { MerkleVerifier } from "../typechain-types/MerkleVerifier";
+import {
+  merkleTreeLeaves,
+  validAddress,
+  invalidAddress,
+} from "./utils/mock-data";
 
 let merkleTree: MerkleTree;
-let merkleVerifier: MerkleVerifier;
 
 function generateMerkleTree() {
   const leaves = merkleTreeLeaves.map((leaf) =>
@@ -23,21 +25,18 @@ function encodeLeaf(address: string) {
 }
 
 async function testMerkleVerification() {
+  const root = merkleTree.getHexRoot();
   const validLeaf = keccak256(encodeLeaf(validAddress.toLocaleLowerCase()));
-
   const invalidLeaf = keccak256(encodeLeaf(invalidAddress.toLocaleLowerCase()));
 
-  const validProof = merkleTree.getHexProof(validLeaf);
-  const invalidProof = merkleTree.getHexProof(invalidLeaf);
+  const validProof = merkleTree.getProof(validLeaf);
+  const invalidProof = merkleTree.getProof(invalidLeaf);
 
-  const validProofVerification = await merkleVerifier.verifyMerkleProof(
-    validProof,
-    validAddress.toLocaleLowerCase()
-  );
-
-  const invalidProofVerification = await merkleVerifier.verifyMerkleProof(
+  const validProofVerification = await merkleTree.verify(validProof, validLeaf, root);
+  const invalidProofVerification = await merkleTree.verify(
     invalidProof,
-    invalidAddress.toLocaleLowerCase()
+    invalidLeaf,
+    root
   );
 
   console.log(
@@ -48,17 +47,8 @@ async function testMerkleVerification() {
   );
 }
 
-async function deployContract() {
-  const root = merkleTree.getHexRoot();
-  const MerkleVerifier = await ethers.getContractFactory("MerkleVerifier");
-  merkleVerifier = await MerkleVerifier.deploy(root);
-  await merkleVerifier.deployed();
-  console.log("MerkleVerifier contract deployed to:", merkleVerifier.address);
-}
-
 async function main() {
   merkleTree = generateMerkleTree();
-  await deployContract();
   await testMerkleVerification();
 }
 
