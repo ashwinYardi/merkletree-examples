@@ -13,6 +13,11 @@
     "keccak256": "^1.0.6",
     "merkletreejs": "^0.2.32"
   },
+  "scripts": {
+    "compile": "npx hardhat compile",
+    "testMerkleVerification:Contract": "npx hardhat run scripts/contarct-merkle-verification.ts",
+    "testMerkleVerification:Offchain": "npx hardhat run scripts/offchain-merkle-verification.ts"
+  },
   "devDependencies": {
     "@ethersproject/abi": "^5.4.7",
     "@ethersproject/providers": "^5.4.7",
